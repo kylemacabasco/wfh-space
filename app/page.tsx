@@ -8,28 +8,28 @@ const coffeeShops = [
     name: "Coffee Shop 1",
     location: "SoHo, NYC",
     image: "☕",
-    amenities: ["WiFi", "Reserved desk", "Coffee", "Matcha", "Food"],
+    amenities: ["Wi-Fi", "Reserved desk", "Coffee", "Matcha", "Food"],
   },
   {
     id: 2,
     name: "Coffee Shop 2",
     location: "Venice, LA",
     image: "🌊",
-    amenities: ["WiFi", "Reserved table", "Coffee", "Matcha", "Food", "Outdoor seating", "dog-friendly"],
+    amenities: ["Wi-Fi", "Reserved table", "Coffee", "Matcha", "Food", "Outdoor seating", "dog-friendly"],
   },
   {
     id: 3,
     name: "LA Mansion 1",
     location: "Los Angeles, CA",
     image: "🏠",
-    amenities: ["WiFi", "Reserved table", "Coffee", "Matcha", "Food", "Backyard", "dog-friendly"],
+    amenities: ["Wi-Fi", "Reserved table", "Coffee", "Matcha", "Food", "Backyard", "dog-friendly"],
   },
   {
     id: 4,
     name: "SF Hacker House",
     location: "San Francisco, CA",
     image: "💻",
-    amenities: ["WiFi", "Reserved table", "Coffee", "Matcha", "Food", "dog-friendly"],
+    amenities: ["Wi-Fi", "Reserved table", "Coffee", "Matcha", "Food", "dog-friendly"],
   },
 ];
 
