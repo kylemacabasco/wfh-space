@@ -59,7 +59,7 @@ export default function Home() {
             at Coffee Shops / places that inspire you?
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Tired of not being able to use your WFH stipend at coffee shops?
+            Tired of not being able to work where you work best?
             <br />
             <span className="font-semibold text-gray-800">Well, now you can.</span>
           </p>
