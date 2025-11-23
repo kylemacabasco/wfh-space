@@ -181,7 +181,7 @@ export default function Home() {
               <div className="text-center">
                 <div className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
                 <h4 className="font-bold text-lg mb-2 text-gray-900">Pick Your Spot</h4>
-                <p className="text-gray-600">Choose from our curated coffee shops in your city.</p>
+                <p className="text-gray-600">Choose from our curated workspaces available.</p>
               </div>
               <div className="text-center">
                 <div className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
@@ -189,12 +189,12 @@ export default function Home() {
                 <p className="text-gray-600">We secure a dedicated desk or table just for you.</p>
               </div>
               <div className="text-center">
-                <div className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+                <div className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4"></div>
                 <h4 className="font-bold text-lg mb-2 text-gray-900">Use Your Stipend (Optional)</h4>
                 <p className="text-gray-600">We provide you with the paperwork to submit to your company as a workspace expense.</p>
               </div>
               <div className="text-center">
-                <div className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+                <div className="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
                 <h4 className="font-bold text-lg mb-2 text-gray-900">Work Better</h4>
                 <p className="text-gray-600">Show up, grab your coffee, and actually enjoy your workday.</p>
               </div>
@@ -207,7 +207,7 @@ export default function Home() {
               Stop Forcing Where You Work
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              You've known it all along—you work better at coffee shops. Now your company can pay for it.
+              You've known it all along—you work better at coffee shops. Now you can work where you work best.
             </p>
             <Button size="lg" variant="secondary" className="px-12 py-6 text-xl shadow-lg">
               Get Started Today
