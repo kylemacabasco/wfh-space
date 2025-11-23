@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "wfh",
-  description: "wfh",
+  description: "Reserve dedicated spots at your favorite cafes and work where you work best.",
 };
 
 export default function RootLayout({
