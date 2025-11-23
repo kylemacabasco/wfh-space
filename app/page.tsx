@@ -222,7 +222,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
           <div>
             <h4 className="font-bold text-lg mb-4">☕ WFH Space</h4>
-            <p className="text-gray-400 text-sm">Work from coffee shops. Use your stipend. Live your best life.</p>
+            <p className="text-gray-400 text-sm">Work from where you work best.</p>
           </div>
           <div>
             <h5 className="font-semibold mb-3">Product</h5>
