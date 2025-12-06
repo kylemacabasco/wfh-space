@@ -5,6 +5,7 @@ import type { Business, InsertBusiness, User } from './database.types';
 // BUSINESS FUNCTIONS
 // ============================================
 
+// Get a business by owner's user ID (returns null if none exists)
 export async function getBusinessByOwnerId(ownerId: string): Promise<Business | null> {
   const { data, error } = await supabase
     .from('businesses')
@@ -19,6 +20,7 @@ export async function getBusinessByOwnerId(ownerId: string): Promise<Business | 
   return data as Business | null;
 }
 
+// Create a new business
 export async function createBusiness(business: InsertBusiness): Promise<Business> {
   const { data, error } = await supabase
     .from('businesses')
@@ -34,6 +36,7 @@ export async function createBusiness(business: InsertBusiness): Promise<Business
 // USER HELPER
 // ============================================
 
+// Get user from database by their Clerk ID
 export async function getUserByClerkId(clerkId: string): Promise<User> {
   const { data, error } = await supabase
     .from('users')
