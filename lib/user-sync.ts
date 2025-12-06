@@ -17,7 +17,7 @@ export async function syncCurrentUser(): Promise<User | null> {
   const name = `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || null;
   const avatar_url = clerkUser.imageUrl || null;
 
-  // Upsert: insert or update if exists
+  // Upsert: insert or update if email exists (prevents duplicates)
   const { data, error } = await supabase
     .from('users')
     .upsert(
@@ -27,7 +27,7 @@ export async function syncCurrentUser(): Promise<User | null> {
         name,
         avatar_url,
       } as InsertUser,
-      { onConflict: 'clerk_id' }
+      { onConflict: 'email' }
     )
     .select('*')
     .single();
