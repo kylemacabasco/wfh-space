@@ -297,7 +297,7 @@ export default function BusinessDashboardPage() {
   if (isLoading || !isLoaded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-600">Loading dashboard...</div>
+        <div className="animate-pulse text-gray-600">Loading dashboard…</div>
       </div>
     );
   }
@@ -390,7 +390,7 @@ export default function BusinessDashboardPage() {
                   </div>
                 ) : isLoadingHours ? (
                   <div className="text-center py-4 text-gray-400 animate-pulse text-sm">
-                    Loading...
+                    Loading…
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -437,7 +437,7 @@ export default function BusinessDashboardPage() {
                           size="sm"
                         >
                           <Save className="w-3.5 h-3.5 mr-1.5" />
-                          {isSavingHours ? 'Saving...' : 'Save Hours'}
+                          {isSavingHours ? 'Saving…' : 'Save Hours'}
                         </Button>
                         {selectedDateHours && (
                           <Button
@@ -513,7 +513,7 @@ export default function BusinessDashboardPage() {
                       <div>
                         <Label className="text-gray-600 text-xs mb-1 block">Description</Label>
                         <Input
-                          placeholder="Optional description..."
+                          placeholder="Optional description…"
                           value={deskForm.description}
                           onChange={e => setDeskForm(prev => ({ ...prev, description: e.target.value }))}
                           className="h-9"
