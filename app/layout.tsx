@@ -47,10 +47,10 @@ export default function RootLayout({
           <div className="flex items-center gap-4">
             <SignedIn>
               <Link 
-                href="/business/new" 
+                href="/business/dashboard" 
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
-                List Your Space
+                My Space
               </Link>
             </SignedIn>
             <SignedOut>

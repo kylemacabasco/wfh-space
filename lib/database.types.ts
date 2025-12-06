@@ -87,6 +87,77 @@ export interface Database {
           }
         ];
       };
+      desks: {
+        Row: {
+          id: string;
+          business_id: string;
+          name: string;
+          description: string | null;
+          hourly_rate: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          business_id: string;
+          name: string;
+          description?: string | null;
+          hourly_rate: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          business_id?: string;
+          name?: string;
+          description?: string | null;
+          hourly_rate?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'desks_business_id_fkey';
+            columns: ['business_id'];
+            referencedRelation: 'businesses';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      date_availability: {
+        Row: {
+          id: string;
+          business_id: string;
+          available_date: string; // DATE as ISO string YYYY-MM-DD
+          open_time: string;      // TIME as HH:MM:SS
+          close_time: string;     // TIME as HH:MM:SS
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          business_id: string;
+          available_date: string;
+          open_time: string;
+          close_time: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          business_id?: string;
+          available_date?: string;
+          open_time?: string;
+          close_time?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'date_availability_business_id_fkey';
+            columns: ['business_id'];
+            referencedRelation: 'businesses';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -101,3 +172,11 @@ export type InsertUser = Database['public']['Tables']['users']['Insert'];
 export type Business = Database['public']['Tables']['businesses']['Row'];
 export type InsertBusiness = Database['public']['Tables']['businesses']['Insert'];
 export type UpdateBusiness = Database['public']['Tables']['businesses']['Update'];
+
+export type Desk = Database['public']['Tables']['desks']['Row'];
+export type InsertDesk = Database['public']['Tables']['desks']['Insert'];
+export type UpdateDesk = Database['public']['Tables']['desks']['Update'];
+
+export type DateAvailability = Database['public']['Tables']['date_availability']['Row'];
+export type InsertDateAvailability = Database['public']['Tables']['date_availability']['Insert'];
+export type UpdateDateAvailability = Database['public']['Tables']['date_availability']['Update'];

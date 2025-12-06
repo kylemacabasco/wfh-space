@@ -93,7 +93,7 @@ export default function NewBusinessPage() {
         amenities: formData.amenities,
       });
 
-      router.push('/');
+      router.push('/business/dashboard');
     } catch (err: unknown) {
       console.error('Error creating business:', err);
       
