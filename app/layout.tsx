@@ -11,6 +11,7 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { UserSync } from '@/components/user-sync'
+import { BusinessNavLink } from '@/components/business-nav-link'
 import Link from 'next/link'
 
 const geistSans = Geist({
@@ -46,12 +47,7 @@ export default function RootLayout({
           </Link>
           <div className="flex items-center gap-4">
             <SignedIn>
-              <Link 
-                href="/business/dashboard" 
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                My Space
-              </Link>
+              <BusinessNavLink />
             </SignedIn>
             <SignedOut>
               <SignInButton />
