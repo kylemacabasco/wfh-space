@@ -15,14 +15,12 @@ CREATE TABLE IF NOT EXISTS businesses (
   state TEXT,
   zip_code TEXT,
   amenities TEXT[] DEFAULT '{}',
-  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_businesses_owner_id ON businesses(owner_id);
 CREATE INDEX IF NOT EXISTS idx_businesses_city ON businesses(city);
-CREATE INDEX IF NOT EXISTS idx_businesses_is_active ON businesses(is_active);
 
 -- Prevent duplicate businesses with same name in same city (case-insensitive)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_businesses_name_city ON businesses(LOWER(name), LOWER(city));
@@ -33,10 +31,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_businesses_name_city ON businesses(LOWER(n
 ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Businesses are viewable by everyone" 
-  ON businesses FOR SELECT USING (is_active = true);
-
-CREATE POLICY "Business owners can view their own businesses" 
-  ON businesses FOR SELECT USING (owner_id IN (SELECT id FROM users WHERE clerk_id = current_setting('request.jwt.claims', true)::json->>'sub'));
+  ON businesses FOR SELECT USING (true);
 
 CREATE POLICY "Business owners can insert their own businesses" 
   ON businesses FOR INSERT WITH CHECK (true);
