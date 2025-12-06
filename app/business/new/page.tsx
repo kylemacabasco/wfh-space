@@ -117,7 +117,7 @@ export default function NewBusinessPage() {
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-600">Loading...</div>
+        <div className="animate-pulse text-gray-600">Loading…</div>
       </div>
     );
   }
@@ -175,7 +175,7 @@ export default function NewBusinessPage() {
                 <Textarea
                   id="description"
                   name="description"
-                  placeholder="Describe your space, the vibe, what makes it great for working..."
+                  placeholder="Describe your space, the vibe, what makes it great for working…"
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={4}
@@ -287,7 +287,7 @@ export default function NewBusinessPage() {
 
               <div className="flex gap-2">
                 <Input
-                  placeholder="Add custom amenity..."
+                  placeholder="Add custom amenity…"
                   value={customAmenity}
                   onChange={(e) => setCustomAmenity(e.target.value)}
                   onKeyDown={(e) => {
@@ -324,7 +324,7 @@ export default function NewBusinessPage() {
             className="w-full py-6 text-lg"
           >
             {isSubmitting ? (
-              'Creating...'
+              'Creating…'
             ) : (
               <>
                 Submit Your Space
@@ -332,10 +332,6 @@ export default function NewBusinessPage() {
               </>
             )}
           </Button>
-
-          <p className="text-center text-sm text-gray-500 mt-4">
-            We&apos;ll review your submission and get back to you soon.
-          </p>
         </form>
       </div>
     </div>
