@@ -94,9 +94,21 @@ export default function NewBusinessPage() {
       });
 
       router.push('/');
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error creating business:', err);
-      setError('Failed to create business. Please try again.');
+      
+      // Check for specific error types
+      const error = err as { code?: string; message?: string };
+      
+      if (error.code === '23505') {
+        // Unique constraint violation
+        setError('A business with this name already exists in this city.');
+      } else if (error.code === '23503') {
+        // Foreign key violation (user doesn't exist)
+        setError('Please sign out and sign back in, then try again.');
+      } else {
+        setError('Failed to create business. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
