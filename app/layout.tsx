@@ -11,6 +11,7 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { UserSync } from '@/components/user-sync'
+import Link from 'next/link'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,18 +40,31 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserSync />
-        <header className="flex justify-end items-center p-4 gap-4 h-16">
-          <SignedOut>
-            <SignInButton />
-            <SignUpButton>
-              <button className="bg-[#6c47ff] text-ceramic-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
-                Sign Up
-              </button>
-            </SignUpButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+        <header className="flex justify-between items-center p-4 gap-4 h-16">
+          <Link href="/" className="font-bold text-xl text-gray-900">
+            ☕ WFH Space
+          </Link>
+          <div className="flex items-center gap-4">
+            <SignedIn>
+              <Link 
+                href="/business/new" 
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                List Your Space
+              </Link>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton />
+              <SignUpButton>
+                <button className="bg-[#6c47ff] text-ceramic-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </div>
         </header>
         {children}
         <Analytics />
