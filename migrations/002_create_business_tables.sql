@@ -24,6 +24,9 @@ CREATE INDEX IF NOT EXISTS idx_businesses_owner_id ON businesses(owner_id);
 CREATE INDEX IF NOT EXISTS idx_businesses_city ON businesses(city);
 CREATE INDEX IF NOT EXISTS idx_businesses_is_active ON businesses(is_active);
 
+-- Prevent duplicate businesses at the same address
+CREATE UNIQUE INDEX IF NOT EXISTS idx_businesses_name_address ON businesses(name, address);
+
 -- ============================================
 -- ROW LEVEL SECURITY (RLS)
 -- ============================================
