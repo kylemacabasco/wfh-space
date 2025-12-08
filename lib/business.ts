@@ -13,6 +13,32 @@ import type {
 // BUSINESS FUNCTIONS
 // ============================================
 
+// Get all businesses (for customers to browse)
+export async function getAllBusinesses(): Promise<Business[]> {
+  const { data, error } = await supabase
+    .from('businesses')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as Business[];
+}
+
+// Get a single business by ID
+export async function getBusinessById(id: string): Promise<Business | null> {
+  const { data, error } = await supabase
+    .from('businesses')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    throw error;
+  }
+
+  return data as Business | null;
+}
+
 // Get a business by owner's user ID (returns null if none exists)
 export async function getBusinessByOwnerId(ownerId: string): Promise<Business | null> {
   const { data, error } = await supabase
