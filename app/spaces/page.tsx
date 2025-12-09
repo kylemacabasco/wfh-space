@@ -117,7 +117,7 @@ export default function SpacesPage() {
                     )}
                     <Link href={`/spaces/${business.id}`}>
                       <Button className="w-full">
-                        Reserve This Spot
+                        Reserve A Spot
                       </Button>
                     </Link>
                   </CardContent>

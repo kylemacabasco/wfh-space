@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { AvailabilityCalendar, formatDateKey } from '@/components/availability-calendar';
 import { getBusinessById, getDesksByBusinessId, getAvailableDates, getHoursForDate } from '@/lib/business';
 import type { Business, Desk, DateAvailability } from '@/lib/database.types';
-import { ChevronLeft, MapPin, Clock, Armchair, X, Calendar, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, Clock, X, Calendar, Minus, Plus } from 'lucide-react';
 
 // Generate start time options (all hours from open to close-1)
 function generateStartTimes(openTime: string, closeTime: string): number[] {
