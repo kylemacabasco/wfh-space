@@ -46,6 +46,12 @@ export default function RootLayout({
             ☕ WFH Space
           </Link>
           <div className="flex items-center gap-4">
+            <Link 
+              href="/spaces" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Browse Spaces
+            </Link>
             <SignedIn>
               <BusinessNavLink />
             </SignedIn>
