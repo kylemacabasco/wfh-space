@@ -115,9 +115,11 @@ export default function SpacesPage() {
                         ))}
                       </div>
                     )}
-                    <Button className="w-full">
-                      Reserve This Spot
-                    </Button>
+                    <Link href={`/spaces/${business.id}`}>
+                      <Button className="w-full">
+                        Reserve A Spot
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               ))}

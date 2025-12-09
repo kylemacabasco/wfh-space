@@ -34,4 +34,3 @@ function Switch({ className, checked = false, onCheckedChange, ...props }: Switc
 }
 
 export { Switch }
-
