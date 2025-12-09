@@ -182,7 +182,7 @@ export default function SpaceDetailPage() {
   if (loading || !isLoaded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500">Loading…</div>
       </div>
     );
   }
