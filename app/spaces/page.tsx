@@ -13,7 +13,6 @@ export default function SpacesPage() {
   const { isLoaded, isSignedIn } = useUser();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSpace, setSelectedSpace] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchBusinesses() {
@@ -33,7 +32,7 @@ export default function SpacesPage() {
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500">Loading…</div>
       </div>
     );
   }
@@ -92,10 +91,7 @@ export default function SpacesPage() {
               {businesses.map((business) => (
                 <Card
                   key={business.id}
-                  onClick={() => setSelectedSpace(business.id)}
-                  className={`cursor-pointer transition-all hover:shadow-xl ${
-                    selectedSpace === business.id ? 'border-primary ring-4 ring-primary/20' : 'hover:border-primary/50'
-                  }`}
+                  className="transition-all hover:shadow-xl hover:border-primary/50"
                 >
                   <CardHeader>
                     <div className="text-5xl mb-2">☕</div>
@@ -119,11 +115,9 @@ export default function SpacesPage() {
                         ))}
                       </div>
                     )}
-                    {selectedSpace === business.id && (
-                      <Button className="w-full">
-                        Reserve This Spot
-                      </Button>
-                    )}
+                    <Button className="w-full">
+                      Reserve This Spot
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
