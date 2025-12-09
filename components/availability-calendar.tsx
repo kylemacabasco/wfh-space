@@ -50,6 +50,8 @@ interface AvailabilityCalendarProps {
   availableDates: Set<string>;
   onMonthChange: (direction: 'prev' | 'next') => void;
   onDateSelect: (date: Date) => void;
+  title?: string;
+  description?: string;
 }
 
 export function AvailabilityCalendar({
@@ -58,6 +60,8 @@ export function AvailabilityCalendar({
   availableDates,
   onMonthChange,
   onDateSelect,
+  title = 'Availability Calendar',
+  description = 'Click dates to set hours',
 }: AvailabilityCalendarProps) {
   const calendarDays = getDaysInMonth(currentMonth.year, currentMonth.month);
   const today = new Date();
@@ -65,38 +69,36 @@ export function AvailabilityCalendar({
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
+      <CardHeader className="py-3">
+        <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg">Availability Calendar</CardTitle>
-            <CardDescription className="text-xs">Click dates to set hours</CardDescription>
+            <CardTitle className="text-lg">{title}</CardTitle>
+            <CardDescription className="text-xs">{description}</CardDescription>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onMonthChange('prev')}
+              className="text-gray-600 hover:text-gray-900 h-8 w-8"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-sm font-semibold text-gray-900 min-w-[120px] text-center">
+              {MONTH_NAMES[currentMonth.month]} {currentMonth.year}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onMonthChange('next')}
+              className="text-gray-600 hover:text-gray-900 h-8 w-8"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-2">
-        {/* Month Navigation */}
-        <div className="flex items-center justify-between mb-3">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => onMonthChange('prev')}
-            className="text-gray-600 hover:text-gray-900 h-7 w-7"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <h3 className="text-base font-semibold text-gray-900">
-            {MONTH_NAMES[currentMonth.month]} {currentMonth.year}
-          </h3>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => onMonthChange('next')}
-            className="text-gray-600 hover:text-gray-900 h-7 w-7"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-
+      <CardContent className="pt-0 pb-3">
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 mb-1">
           {WEEKDAY_NAMES.map(day => (
@@ -122,7 +124,7 @@ export function AvailabilityCalendar({
                 onClick={() => !isPast && onDateSelect(date)}
                 disabled={isPast}
                 className={`
-                  relative h-18 rounded-lg flex flex-col items-center justify-center
+                  relative h-9 rounded-md flex flex-col items-center justify-center
                   transition-all duration-150
                   ${!isCurrentMonth ? 'opacity-25' : ''}
                   ${isPast ? 'opacity-35 cursor-not-allowed' : 'cursor-pointer'}
@@ -149,7 +151,7 @@ export function AvailabilityCalendar({
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t">
+        <div className="flex items-center gap-4 mt-2 pt-2 border-t">
           <div className="flex items-center gap-1.5 text-xs text-gray-400">
             <div className="w-2 h-2 rounded-full bg-green-500" />
             <span>Available</span>
