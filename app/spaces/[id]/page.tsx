@@ -197,6 +197,12 @@ export default function SpaceDetailPage() {
       // Get the database user ID from Clerk ID
       const dbUser = await getUserByClerkId(user.id);
       
+      // Prevent business owners from booking their own spots
+      if (dbUser.id === business.owner_id) {
+        setBookingError("You can't book a spot at your own business.");
+        return;
+      }
+      
       // Format times as HH:MM:SS
       const startTimeStr = `${startTime.toString().padStart(2, '0')}:00:00`;
       const endTimeStr = `${endTime.toString().padStart(2, '0')}:00:00`;
