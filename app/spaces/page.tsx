@@ -45,9 +45,19 @@ export default function SpacesPage() {
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Find Your Perfect Workspace
           </h1>
-          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Browse curated coffee shops, cafes, and workspaces where you can reserve a dedicated spot and work where you work best.
           </p>
+
+          {/* Business owner CTA */}
+          <div className="mb-12 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl inline-flex items-center gap-4">
+            <span className="text-gray-700">Own a coffee shop or workspace?</span>
+            <Link href="/business/new">
+              <Button variant="outline" className="border-amber-400 text-amber-700 hover:bg-amber-100 hover:text-amber-800">
+                List Your Space
+              </Button>
+            </Link>
+          </div>
 
           {/* Loading state */}
           {loading && (
