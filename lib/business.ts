@@ -271,6 +271,23 @@ export async function getReservationsByBusinessId(businessId: string): Promise<R
   return data as Reservation[];
 }
 
+// Get reservations for a desk on a specific date (to show booked slots)
+export async function getReservationsForDeskOnDate(
+  deskId: string,
+  date: string
+): Promise<Reservation[]> {
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*')
+    .eq('desk_id', deskId)
+    .eq('reservation_date', date)
+    .neq('status', 'cancelled')
+    .order('start_time', { ascending: true });
+
+  if (error) throw error;
+  return data as Reservation[];
+}
+
 // Check if a desk is available for a specific time slot
 export async function isDeskAvailable(
   deskId: string,

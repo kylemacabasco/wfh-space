@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { getReservationById, getBusinessById, getDesksByBusinessId } from '@/lib/business';
 import type { Reservation, Business, Desk } from '@/lib/database.types';
-import { CheckCircle, Calendar, Clock, MapPin } from 'lucide-react';
+import { CheckCircle, Calendar, Clock } from 'lucide-react';
 
 // Format hour for display (24h to 12h)
 function formatTime(time: string): string {
@@ -125,7 +125,6 @@ export default function ConfirmationPage() {
               <div>
                 <CardTitle>{business.name}</CardTitle>
                 <CardDescription className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
                   {business.city}{business.state && `, ${business.state}`}
                 </CardDescription>
               </div>

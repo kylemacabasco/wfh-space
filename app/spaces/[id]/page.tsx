@@ -8,9 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AvailabilityCalendar, formatDateKey } from '@/components/availability-calendar';
-import { getBusinessById, getDesksByBusinessId, getAvailableDates, getHoursForDate, createReservation, getUserByClerkId, isDeskAvailable } from '@/lib/business';
+import { getBusinessById, getDesksByBusinessId, getAvailableDates, getHoursForDate, createReservation, getUserByClerkId, isDeskAvailable, getReservationsForDeskOnDate } from '@/lib/business';
 import type { Business, Desk, DateAvailability } from '@/lib/database.types';
-import { ChevronLeft, Clock, X, Calendar, Minus, Plus, Loader2 } from 'lucide-react';
+import { ChevronLeft, Clock, Calendar, Minus, Plus, Loader2 } from 'lucide-react';
 
 // Generate start time options (all hours from open to close-1)
 function generateStartTimes(openTime: string, closeTime: string): number[] {
@@ -58,6 +58,10 @@ export default function SpaceDetailPage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [duration, setDuration] = useState<number>(1); // hours
   const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null);
+  
+  // Booked hours state (to hide already reserved time slots)
+  const [bookedHours, setBookedHours] = useState<Set<number>>(new Set());
+  const [loadingBookedHours, setLoadingBookedHours] = useState(false);
   
   // Booking state
   const [isBooking, setIsBooking] = useState(false);
@@ -142,6 +146,42 @@ export default function SpaceDetailPage() {
     fetchHours();
   }, [id, selectedDate]);
 
+  // Fetch booked hours when desk and date change
+  useEffect(() => {
+    async function fetchBookedHours() {
+      if (!selectedDesk || !selectedDate) {
+        setBookedHours(new Set());
+        return;
+      }
+
+      setLoadingBookedHours(true);
+      try {
+        const reservations = await getReservationsForDeskOnDate(
+          selectedDesk.id,
+          formatDateKey(selectedDate)
+        );
+        
+        // Convert reservations to a set of booked hours
+        const booked = new Set<number>();
+        reservations.forEach(res => {
+          const startHour = parseInt(res.start_time.split(':')[0]);
+          const endHour = parseInt(res.end_time.split(':')[0]);
+          for (let hour = startHour; hour < endHour; hour++) {
+            booked.add(hour);
+          }
+        });
+        setBookedHours(booked);
+      } catch (error) {
+        console.error('Failed to fetch booked hours:', error);
+        setBookedHours(new Set());
+      } finally {
+        setLoadingBookedHours(false);
+      }
+    }
+
+    fetchBookedHours();
+  }, [selectedDesk, selectedDate]);
+
   const handleMonthChange = (direction: 'prev' | 'next') => {
     setCurrentMonth(prev => {
       const newMonth = direction === 'next' ? prev.month + 1 : prev.month - 1;
@@ -158,18 +198,21 @@ export default function SpaceDetailPage() {
     setSelectedDate(date);
   };
 
-  const clearSelection = () => {
-    setSelectedDate(null);
-    setStartTime(null);
-    setDuration(1);
-    setSelectedDesk(null);
-  };
-
-  // Calculate max duration based on start time and closing time
+  // Calculate max duration based on start time, closing time, and next booked slot
   const getMaxDuration = (): number => {
     if (!dateHours || startTime === null) return 1;
     const [closeHour] = dateHours.close_time.split(':').map(Number);
-    return closeHour - startTime;
+    
+    // Find the next booked hour after start time
+    let maxByBooking = closeHour - startTime;
+    for (let hour = startTime + 1; hour < closeHour; hour++) {
+      if (bookedHours.has(hour)) {
+        maxByBooking = hour - startTime;
+        break;
+      }
+    }
+    
+    return maxByBooking;
   };
 
   const handleDurationChange = (change: number) => {
@@ -180,7 +223,9 @@ export default function SpaceDetailPage() {
     }
   };
 
-  const startTimes = dateHours ? generateStartTimes(dateHours.open_time, dateHours.close_time) : [];
+  const allStartTimes = dateHours ? generateStartTimes(dateHours.open_time, dateHours.close_time) : [];
+  // Filter out booked hours from available start times
+  const startTimes = allStartTimes.filter(hour => !bookedHours.has(hour));
   const endTime = startTime !== null ? startTime + duration : null;
   const totalPrice = selectedDesk ? selectedDesk.hourly_rate * duration : 0;
 
@@ -298,7 +343,7 @@ export default function SpaceDetailPage() {
           )}
         </div>
 
-        {/* Top Row: Calendar + Time Picker (2 columns) */}
+        {/* Top Row: Calendar + Available Spots (2 columns) */}
         <div className="grid lg:grid-cols-2 gap-4 mb-4">
           {/* Calendar */}
           <AvailabilityCalendar
@@ -307,44 +352,27 @@ export default function SpaceDetailPage() {
             availableDates={availableDates}
             onMonthChange={handleMonthChange}
             onDateSelect={handleDateSelect}
-            description="Select a date to see available times"
+            description="Select a date to see available spots"
           />
 
-          {/* Time Selection Panel */}
+          {/* Available Spots Panel */}
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
-                <div className="text-3xl">🕐</div>
+                <div className="text-3xl">🪑</div>
                 <div>
-                  <CardTitle className="text-lg">
-                    {selectedDate 
-                      ? selectedDate.toLocaleDateString('en-US', { 
-                          weekday: 'short', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })
-                      : 'Select a Date'
-                    }
-                  </CardTitle>
+                  <CardTitle className="text-lg">Available Spots</CardTitle>
                   <CardDescription className="text-xs">
-                    {selectedDate ? 'Choose time & duration' : 'Click a date on the calendar'}
+                    {!selectedDate || !dateHours ? 'Select an available date first' : 'Choose your workspace'}
                   </CardDescription>
                 </div>
-                {selectedDate && (
-                  <button 
-                    onClick={clearSelection}
-                    className="ml-auto text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
               </div>
             </CardHeader>
             <CardContent>
               {!selectedDate && (
                 <div className="text-center py-8 text-gray-400">
                   <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">Select a date to see available hours</p>
+                  <p className="text-sm">Select a date to see available spots</p>
                 </div>
               )}
 
@@ -361,122 +389,160 @@ export default function SpaceDetailPage() {
                 </div>
               )}
 
-              {selectedDate && !loadingHours && dateHours && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-4 gap-2">
-                    {startTimes.map((hour) => (
-                      <Button
-                        key={hour}
-                        variant={startTime === hour ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => {
-                          setStartTime(hour);
+              {selectedDate && !loadingHours && dateHours && desks.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  <div className="text-4xl mb-3">🪑</div>
+                  <p className="text-sm">No spots available</p>
+                </div>
+              )}
+
+              {selectedDate && !loadingHours && dateHours && desks.length > 0 && (
+                <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
+                  {desks.map((desk) => (
+                    <div
+                      key={desk.id}
+                      onClick={() => {
+                        // Reset time if switching desks (booked hours may differ)
+                        if (selectedDesk?.id !== desk.id) {
+                          setStartTime(null);
                           setDuration(1);
-                        }}
-                        className="text-xs"
-                      >
-                        {formatHour(hour)}
-                      </Button>
-                    ))}
-                  </div>
-
-                  {startTime !== null && (
-                    <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                        }
+                        setSelectedDesk(desk);
+                      }}
+                      className={`
+                        p-4 bg-white rounded-lg border transition-all hover:shadow-md cursor-pointer
+                        ${selectedDesk?.id === desk.id ? 'border-primary ring-2 ring-primary/20' : 'border-gray-200'}
+                      `}
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Duration</span>
-                        <div className="flex items-center gap-3">
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => handleDurationChange(-1)}
-                            disabled={duration <= 1}
-                            className="h-8 w-8"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="text-base font-semibold w-20 text-center">
-                            {duration} {duration === 1 ? 'hour' : 'hours'}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => handleDurationChange(1)}
-                            disabled={duration >= getMaxDuration()}
-                            className="h-8 w-8"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <h4 className="font-medium text-gray-900">{desk.name}</h4>
+                        <span className="text-primary font-semibold">${desk.hourly_rate}/hr</span>
                       </div>
-
-                      <div className="p-3 bg-green-50 rounded-lg border border-green-100">
-                        <div className="flex items-center gap-2 text-green-700">
-                          <Clock className="w-4 h-4" />
-                          <span className="font-medium">
-                            {formatHour(startTime)} – {formatHour(endTime!)}
-                          </span>
-                        </div>
-                      </div>
+                      {desk.description && (
+                        <p className="text-gray-500 text-sm mt-1">{desk.description}</p>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Bottom Row: Available Spots - Full Width Horizontal */}
+        {/* Bottom Row: Time Selection + Booking Summary */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
-              <div className="text-3xl">🪑</div>
+              <div className="text-3xl">🕐</div>
               <div>
-                <CardTitle className="text-lg">Available Spots</CardTitle>
-                <CardDescription className="text-xs">Choose your workspace</CardDescription>
+                <CardTitle className="text-lg">
+                  {selectedDate && selectedDesk
+                    ? `${selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · ${selectedDesk.name}`
+                    : 'Select Time'
+                  }
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {!selectedDate 
+                    ? 'Select a date first' 
+                    : !selectedDesk 
+                      ? 'Select a spot first'
+                      : 'Choose your time slot'}
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            {desks.length === 0 ? (
+            {(!selectedDate || !selectedDesk) && (
               <div className="text-center py-8 text-gray-400">
-                <div className="text-4xl mb-3">🪑</div>
-                <p className="text-sm">No spots available</p>
+                <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p className="text-sm">
+                  {!selectedDate ? 'Select a date to continue' : 'Select a spot to see available times'}
+                </p>
               </div>
-            ) : (
+            )}
+
+            {selectedDate && selectedDesk && loadingBookedHours && (
+              <div className="text-center py-8 text-gray-400 animate-pulse text-sm">
+                Loading available times…
+              </div>
+            )}
+
+            {selectedDate && selectedDesk && !loadingBookedHours && (
               <div className="flex flex-col lg:flex-row gap-6">
-                {/* Horizontal Desk Cards */}
-                <div className="flex-1 flex gap-4 overflow-x-auto pb-2">
-                  {desks.map((desk) => (
-                    <div
-                      key={desk.id}
-                      onClick={() => startTime !== null && setSelectedDesk(desk)}
-                      className={`
-                        flex-shrink-0 w-64 p-4 bg-white rounded-lg border transition-all
-                        ${startTime === null ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md cursor-pointer'}
-                        ${selectedDesk?.id === desk.id ? 'border-primary ring-2 ring-primary/20' : 'border-gray-200'}
-                      `}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-gray-900">{desk.name}</h4>
-                        <span className="text-primary font-semibold">${desk.hourly_rate}/hr</span>
+                {/* Time Slots */}
+                <div className="flex-1">
+                  {startTimes.length === 0 ? (
+                    <div className="text-center py-6 text-gray-400">
+                      <Clock className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No times available for this spot</p>
+                      <p className="text-xs mt-1">Try selecting a different spot</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2">
+                        {startTimes.map((hour) => (
+                          <Button
+                            key={hour}
+                            variant={startTime === hour ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => {
+                              setStartTime(hour);
+                              setDuration(1);
+                            }}
+                            className="text-xs"
+                          >
+                            {formatHour(hour)}
+                          </Button>
+                        ))}
                       </div>
-                      {desk.description && (
-                        <p className="text-gray-500 text-sm">{desk.description}</p>
+
+                      {startTime !== null && (
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Duration</span>
+                            <div className="flex items-center gap-3">
+                              <Button
+                                variant="outline"
+                                size="icon-sm"
+                                onClick={() => handleDurationChange(-1)}
+                                disabled={duration <= 1}
+                                className="h-8 w-8"
+                              >
+                                <Minus className="w-4 h-4" />
+                              </Button>
+                              <span className="text-base font-semibold w-20 text-center">
+                                {duration} {duration === 1 ? 'hour' : 'hours'}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon-sm"
+                                onClick={() => handleDurationChange(1)}
+                                disabled={duration >= getMaxDuration()}
+                                className="h-8 w-8"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
                       )}
                     </div>
-                  ))}
+                  )}
                 </div>
 
                 {/* Booking Summary - Right Side */}
-                {startTime !== null && selectedDesk && (
+                {startTime !== null && (
                   <div className="lg:w-72 flex-shrink-0 lg:border-l lg:pl-6">
-                    <div className="space-y-2 text-sm mb-4">
-                      <div className="flex items-center justify-between text-gray-600">
-                        <span>Time</span>
-                        <span className="font-medium text-gray-900">
-                          {formatHour(startTime)} - {formatHour(endTime!)}
+                    <div className="p-3 bg-green-50 rounded-lg border border-green-100 mb-4">
+                      <div className="flex items-center gap-2 text-green-700">
+                        <Clock className="w-4 h-4" />
+                        <span className="font-medium">
+                          {formatHour(startTime)} – {formatHour(endTime!)}
                         </span>
                       </div>
+                    </div>
+
+                    <div className="space-y-2 text-sm mb-4">
                       <div className="flex items-center justify-between text-gray-600">
                         <span>Spot</span>
                         <span className="font-medium text-gray-900">{selectedDesk.name}</span>
