@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AvailabilityCalendar, formatDateKey } from '@/components/availability-calendar';
-import { getBusinessById, getDesksByBusinessId, getAvailableDates, getHoursForDate } from '@/lib/business';
+import { getBusinessById, getDesksByBusinessId, getAvailableDates, getHoursForDate, createReservation, getUserByClerkId, isDeskAvailable } from '@/lib/business';
 import type { Business, Desk, DateAvailability } from '@/lib/database.types';
-import { ChevronLeft, Clock, X, Calendar, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, Clock, X, Calendar, Minus, Plus, Loader2 } from 'lucide-react';
 
 // Generate start time options (all hours from open to close-1)
 function generateStartTimes(openTime: string, closeTime: string): number[] {
@@ -33,8 +33,9 @@ function formatHour(hour: number): string {
 
 export default function SpaceDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
   
   const [business, setBusiness] = useState<Business | null>(null);
   const [desks, setDesks] = useState<Desk[]>([]);
@@ -57,6 +58,10 @@ export default function SpaceDetailPage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [duration, setDuration] = useState<number>(1); // hours
   const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null);
+  
+  // Booking state
+  const [isBooking, setIsBooking] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Fetch business and desks
   useEffect(() => {
@@ -178,6 +183,54 @@ export default function SpaceDetailPage() {
   const startTimes = dateHours ? generateStartTimes(dateHours.open_time, dateHours.close_time) : [];
   const endTime = startTime !== null ? startTime + duration : null;
   const totalPrice = selectedDesk ? selectedDesk.hourly_rate * duration : 0;
+
+  // Handle booking submission
+  const handleBooking = async () => {
+    if (!user || !business || !selectedDate || startTime === null || !selectedDesk || endTime === null) {
+      return;
+    }
+
+    setIsBooking(true);
+    setBookingError(null);
+
+    try {
+      // Get the database user ID from Clerk ID
+      const dbUser = await getUserByClerkId(user.id);
+      
+      // Format times as HH:MM:SS
+      const startTimeStr = `${startTime.toString().padStart(2, '0')}:00:00`;
+      const endTimeStr = `${endTime.toString().padStart(2, '0')}:00:00`;
+      const dateStr = formatDateKey(selectedDate);
+      
+      // Check if the desk is still available (prevent double-booking)
+      const available = await isDeskAvailable(selectedDesk.id, dateStr, startTimeStr, endTimeStr);
+      if (!available) {
+        setBookingError('This spot is no longer available for the selected time. Please choose a different time or spot.');
+        return;
+      }
+      
+      // Create the reservation
+      const reservation = await createReservation({
+        user_id: dbUser.id,
+        business_id: business.id,
+        desk_id: selectedDesk.id,
+        reservation_date: dateStr,
+        start_time: startTimeStr,
+        end_time: endTimeStr,
+        duration_hours: duration,
+        total_price: totalPrice,
+        status: 'confirmed',
+      });
+
+      // Redirect to confirmation page
+      router.push(`/spaces/${id}/confirmation?reservation=${reservation.id}`);
+    } catch (err) {
+      console.error('Booking failed:', err);
+      setBookingError('Failed to complete booking. Please try again.');
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   if (loading || !isLoaded) {
     return (
@@ -432,9 +485,24 @@ export default function SpaceDetailPage() {
                       <span className="text-primary font-bold">${totalPrice}</span>
                     </div>
                     
+                    {bookingError && (
+                      <p className="text-red-500 text-sm mb-3">{bookingError}</p>
+                    )}
+                    
                     {isSignedIn ? (
-                      <Button className="w-full">
-                        Confirm Reservation
+                      <Button 
+                        className="w-full" 
+                        onClick={handleBooking}
+                        disabled={isBooking}
+                      >
+                        {isBooking ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Booking…
+                          </>
+                        ) : (
+                          'Confirm Reservation'
+                        )}
                       </Button>
                     ) : (
                       <Link href="/sign-in" className="block">
