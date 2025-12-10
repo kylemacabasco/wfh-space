@@ -158,6 +158,67 @@ export interface Database {
           }
         ];
       };
+      reservations: {
+        Row: {
+          id: string;
+          user_id: string;
+          business_id: string;
+          desk_id: string;
+          reservation_date: string; // DATE as ISO string YYYY-MM-DD
+          start_time: string;       // TIME as HH:MM:SS
+          end_time: string;         // TIME as HH:MM:SS
+          duration_hours: number;
+          total_price: number;
+          status: 'pending' | 'confirmed' | 'cancelled';
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          business_id: string;
+          desk_id: string;
+          reservation_date: string;
+          start_time: string;
+          end_time: string;
+          duration_hours: number;
+          total_price: number;
+          status?: 'pending' | 'confirmed' | 'cancelled';
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          business_id?: string;
+          desk_id?: string;
+          reservation_date?: string;
+          start_time?: string;
+          end_time?: string;
+          duration_hours?: number;
+          total_price?: number;
+          status?: 'pending' | 'confirmed' | 'cancelled';
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reservations_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reservations_business_id_fkey';
+            columns: ['business_id'];
+            referencedRelation: 'businesses';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reservations_desk_id_fkey';
+            columns: ['desk_id'];
+            referencedRelation: 'desks';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -180,3 +241,7 @@ export type UpdateDesk = Database['public']['Tables']['desks']['Update'];
 export type DateAvailability = Database['public']['Tables']['date_availability']['Row'];
 export type InsertDateAvailability = Database['public']['Tables']['date_availability']['Insert'];
 export type UpdateDateAvailability = Database['public']['Tables']['date_availability']['Update'];
+
+export type Reservation = Database['public']['Tables']['reservations']['Row'];
+export type InsertReservation = Database['public']['Tables']['reservations']['Insert'];
+export type UpdateReservation = Database['public']['Tables']['reservations']['Update'];

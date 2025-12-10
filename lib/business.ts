@@ -7,6 +7,8 @@ import type {
   InsertDesk,
   UpdateDesk,
   DateAvailability,
+  Reservation,
+  InsertReservation,
 } from './database.types';
 
 // ============================================
@@ -212,4 +214,98 @@ export async function getUserByClerkId(clerkId: string): Promise<User> {
 
   if (error) throw error;
   return data as User;
+}
+
+// ============================================
+// RESERVATION FUNCTIONS
+// ============================================
+
+// Create a new reservation
+export async function createReservation(reservation: InsertReservation): Promise<Reservation> {
+  const { data, error } = await supabase
+    .from('reservations')
+    .insert(reservation)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Reservation;
+}
+
+// Get a reservation by ID
+export async function getReservationById(id: string): Promise<Reservation | null> {
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    throw error;
+  }
+
+  return data as Reservation | null;
+}
+
+// Get all reservations for a user
+export async function getReservationsByUserId(userId: string): Promise<Reservation[]> {
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*')
+    .eq('user_id', userId)
+    .order('reservation_date', { ascending: false });
+
+  if (error) throw error;
+  return data as Reservation[];
+}
+
+// Get all reservations for a business
+export async function getReservationsByBusinessId(businessId: string): Promise<Reservation[]> {
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*')
+    .eq('business_id', businessId)
+    .order('reservation_date', { ascending: false });
+
+  if (error) throw error;
+  return data as Reservation[];
+}
+
+// Get reservations for a desk on a specific date (to show booked slots)
+export async function getReservationsForDeskOnDate(
+  deskId: string,
+  date: string
+): Promise<Reservation[]> {
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*')
+    .eq('desk_id', deskId)
+    .eq('reservation_date', date)
+    .neq('status', 'cancelled')
+    .order('start_time', { ascending: true });
+
+  if (error) throw error;
+  return data as Reservation[];
+}
+
+// Check if a desk is available for a specific time slot
+export async function isDeskAvailable(
+  deskId: string,
+  date: string,
+  startTime: string,
+  endTime: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('id')
+    .eq('desk_id', deskId)
+    .eq('reservation_date', date)
+    .neq('status', 'cancelled')
+    .lt('start_time', endTime)
+    .gt('end_time', startTime);
+
+  if (error) throw error;
+  
+  // If no conflicting reservations, desk is available
+  return data.length === 0;
 }
